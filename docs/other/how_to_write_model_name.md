@@ -83,6 +83,22 @@ response = pne.chat(
 
 Use `openai/model_name` provider means you are using OpenAI SDK to call the model.
 
+## Use Forge provider
+
+Forge is OpenAI-compatible. Use the model format `forge/Provider/model-name`.
+For example:
+
+```python
+import os
+import pne
+
+os.environ["FORGE_API_KEY"] = "your_forge_api_key"
+# Optional override, default is https://api.forge.tensorblock.co/v1
+os.environ["FORGE_API_BASE"] = "https://api.forge.tensorblock.co/v1"
+
+model = pne.LLMFactory.build(model_name="forge/OpenAI/gpt-4o-mini")
+```
+
 ## Why not provider name in OpenAI model?
 
 For some well-known models, we use the model name directly without specifying the provider name. For example, for the OpenAI series of models, we only need to specify the model name, such as' gpt-3.5-turbo '. The same is true for Anthropic models, if you want to use Claude2, just specify 'model_name=claude2'.

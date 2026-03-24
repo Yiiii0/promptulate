@@ -28,6 +28,38 @@ def test_init_zhipu():
         )
 
 
+def test_init_forge(monkeypatch):
+    monkeypatch.setenv("FORGE_API_KEY", "forge-key")
+    model = pne.LLMFactory.build(model_name="forge/OpenAI/gpt-4o-mini")
+
+    assert model._model == "openai/OpenAI/gpt-4o-mini"
+    assert model._model_config["api_key"] == "forge-key"
+    assert model._model_config["api_base"] == "https://api.forge.tensorblock.co/v1"
+
+
+def test_init_forge_allow_custom_base_and_key():
+    model = pne.LLMFactory.build(
+        model_name="Forge/OpenAI/gpt-4o-mini",
+        model_config={
+            "api_key": "custom-key",
+            "api_base": "https://custom.forge/v1",
+            "temperature": 0.1,
+        },
+    )
+
+    assert model._model == "openai/OpenAI/gpt-4o-mini"
+    assert model._model_config["api_key"] == "custom-key"
+    assert model._model_config["api_base"] == "https://custom.forge/v1"
+    assert model._model_config["temperature"] == 0.1
+
+
+def test_init_forge_invalid_model_format():
+    with pytest.raises(
+        ValueError, match="Forge model must use format `forge/Provider/model-name`."
+    ):
+        pne.LLMFactory.build(model_name="forge/gpt-4o-mini")
+
+
 @pytest.fixture
 def llm_factory():
     return pne.LLMFactory.build("zhipu/glm4")
