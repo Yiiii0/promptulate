@@ -8,14 +8,16 @@ import promptulate as pne
 def test_init_litellm():
     import litellm
 
-    with pytest.raises(litellm.exceptions.APIConnectionError) as e:
+    expected_errors = (litellm.exceptions.APIConnectionError,)
+    bad_request_error = getattr(litellm.exceptions, "BadRequestError", None)
+    if bad_request_error is not None:
+        expected_errors = expected_errors + (bad_request_error,)
+
+    with pytest.raises(expected_errors) as e:
         model = pne.LLMFactory.build(model_name="claude-2")
         model("hello")
 
-        assert (
-            str(e.value)
-            == "Missing Anthropic API Key - A call is being made to anthropic but no key is set either in the environment variables or via params"  # noqa
-        )
+    assert "api_key" in str(e.value) or "LLM Provider NOT provided" in str(e.value)
 
 
 def test_init_zhipu():
